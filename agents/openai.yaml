@@ -1,0 +1,4 @@
+interface:
+  display_name: "机械革命 AMD 重启修复"
+  short_description: "处理机械革命 AMD 自动重启、电源策略与驱动修复流程"
+  default_prompt: "Use $mechrevo-amd-restart-fix to diagnose and mitigate random AMD-related restarts on a Mechrevo laptop, and apply the admin PowerShell power-plan fix when appropriate."
