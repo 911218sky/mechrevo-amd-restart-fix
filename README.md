@@ -1,111 +1,147 @@
 # Mechrevo AMD Restart Fix
 
-`mechrevo-amd-restart-fix` is a local Codex skill for diagnosing and mitigating random restarts on AMD-based Mechrevo laptops, especially models like the Mechrevo 15X Blizzard.
+语言：简体中文 | [繁體中文](./README.zh-TW.md) | [English](./README.en.md)
 
-Search aliases:
+一个给 `机械革命 / Mechrevo` AMD 笔记本用的修复项目，专门处理这类问题：
 
-- Simplified Chinese: `机械革命 AMD 自动重启` / `机械革命 黑屏重启` / `机械革命 蓝屏重启` / `AMD 显卡 自动重启`
-- Traditional Chinese: `機械革命 AMD 自動重啟` / `機械革命 黑屏重啟` / `機械革命 藍屏重啟` / `AMD 顯卡 自動重啟`
-- English: `Mechrevo AMD random restart` / `Mechrevo AMD black screen reboot` / `AMD laptop random reboot fix`
+- 随机自动重启
+- 黑屏后重启
+- 轻负载时卡死或突然重启
+- AMD 驱动太旧，系统状态切换不稳定
 
-## Multilingual Summary
+这个项目的核心做法很直接：
 
-### 繁體中文
+- 创建一个稳定性电源计划
+- 最低处理器状态设为 `5%`
+- 最高处理器状态设为 `99%`
+- 关闭 `PCIe 链路状态电源管理`
+- 关闭 `系统失败时自动重新启动`
 
-這是一個針對機械革命 AMD 筆電隨機重啟、黑屏、自動重新開機問題的 Codex Skill。它會建立穩定性電源計畫，將最低處理器狀態設為 `5%`、最高處理器狀態設為 `99%`、關閉 PCIe 鏈路狀態電源管理，並關閉「系統失敗時自動重新啟動」。
+## 一句话怎么用
 
-### 简体中文
+把这个项目网址发给 Codex 或其他 AI agent，然后直接叫它帮你修复：
 
-这是一个针对机械革命 AMD 笔记本随机重启、黑屏、自动重启问题的 Codex Skill。它会创建稳定性电源计划，将最低处理器状态设为 `5%`、最高处理器状态设为 `99%`、关闭 PCIe 链路状态电源管理，并关闭“系统失败时自动重新启动”。
+```text
+https://github.com/911218sky/mechrevo-amd-restart-fix
+```
 
-### English
+你可以直接复制这段话：
 
-This is a Codex skill for Mechrevo AMD laptops that show random restarts, black screens, or silent reboot behavior. It applies a stability-oriented Windows power plan, caps the maximum processor state at `99%`, sets the minimum processor state to `5%`, disables PCIe ASPM, and disables `System failure -> Automatically restart`.
+```text
+请使用这个项目帮我修复机械革命 AMD 自动重启问题：
+https://github.com/911218sky/mechrevo-amd-restart-fix
+先检查我当前的电源计划、自动重新启动和驱动状态，再按项目里的脚本帮我处理。
+```
 
-It focuses on a practical, validated path instead of broad hardware-defect claims:
+这个流程的前提是：
 
-- create and activate a stability-focused Windows power plan
-- set minimum processor state to `5%`
-- set maximum processor state to `99%`
-- disable PCIe Link State Power Management
-- disable `System failure -> Automatically restart`
-- preserve the original Windows state so it can be restored later
-- document the reasoning behind the driver / BIOS / power-state diagnosis
+- 仓库已经下载到出问题的那台 Windows 笔记本上
+- agent 能访问这个本地仓库
+- 最终脚本会在那台机器上用管理员 PowerShell 执行
 
-## What This Skill Is For
+## AI 使用流程
 
-Use this skill when a Mechrevo laptop with AMD graphics or an AMD APU shows:
+如果你是让 Codex 或其他 agent 帮你操作，正常流程应该是：
 
-- random restart behavior
-- black screens or freezes
-- crashes during light load, idle transitions, browser use, or media playback
-- a stale or OEM-locked AMD graphics driver that is not updating cleanly
+0. 先把这个仓库 clone / 下载到 agent 能访问的本地工作区
+1. 打开这个仓库
+2. 读取 `SKILL.md`
+3. 检查你当前的电源计划、`AutoReboot` 和 AMD 驱动状态
+4. 用管理员权限运行 `scripts/apply_mechrevo_amd_mitigation.ps1`
+5. 再次检查设置是否已经成功应用
+6. 如果你想撤销，再运行 `scripts/restore_mechrevo_power_defaults.ps1`
 
-This skill is not a substitute for full hardware diagnosis if the machine also shows thermal shutdowns, repeat WHEA hardware errors, battery damage, or crashes outside normal Windows use.
+你预期看到的结果是：
 
-## Search Keywords
+- 活动计划变成 `Mechrevo AMD Stability`
+- 最低处理器状态是 `5%`
+- 最高处理器状态是 `99%`
+- PCIe 链路状态电源管理是 `关闭`
+- `AutoReboot = 0`
 
-Relevant search phrases for GitHub and web search:
+开始修改前，至少要先确认：
 
-- `机械革命 自动重启`
-- `機械革命 自動重啟`
-- `机械革命 AMD 显卡 自动重启`
-- `機械革命 AMD 顯卡 自動重啟`
-- `机械革命 15X 暴风雪 自动重启`
-- `機械革命 15X 暴風雪 自動重啟`
-- `Mechrevo 15X Blizzard random restart`
-- `AMD integrated graphics reboot issue`
-- `AMD laptop power plan restart fix`
+- 当前活动电源计划是什么
+- `AutoReboot` 当前是不是 `0`
+- AMD 显卡驱动是否明显过旧、无法正常更新，或者仍是旧 OEM 版本
 
-## Files
+## 自己手动用
 
-- `SKILL.md`: main skill instructions for Codex
-- `agents/openai.yaml`: UI metadata
-- `scripts/apply_mechrevo_amd_mitigation.ps1`: admin PowerShell apply script
-- `scripts/restore_mechrevo_power_defaults.ps1`: restore script
-- `references/mechrevo-15x-case.md`: case notes and reasoning constraints
+适用环境：
 
-## How To Use
+- Windows 11
+- PowerShell
+- 管理员权限
+- 仓库已经 clone / 下载到本地
+- 在仓库根目录运行命令
 
-Run the apply script from PowerShell:
+应用修复：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\apply_mechrevo_amd_mitigation.ps1
 ```
 
-Run the restore script if you want to switch back to the previously recorded Windows state:
+还原之前的状态：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\restore_mechrevo_power_defaults.ps1
 ```
 
-The script self-elevates with UAC and stores the previous plan GUID plus the original `CrashControl\AutoReboot` value in `scripts/last-apply.json`.
+## 怎么确认已经成功
 
-## Tested On This Machine
+运行下面这些命令检查：
 
-The current implementation was tested directly on this Windows machine with real `powercfg` and registry changes.
-
-Verified behavior:
-
-- `apply` creates or re-creates a `Mechrevo AMD Stability` plan
-- active plan settings become:
-  - minimum processor state: `5%` on AC/DC
-  - maximum processor state: `99%` on AC/DC
-  - PCIe ASPM: `Off` on AC/DC
-- `CrashControl\AutoReboot` becomes `0`
-- repeated `apply` while already active does not create duplicate plans
-- repeated `apply` does not overwrite the saved original-state file
-- `restore` switches the machine back to the saved original power plan
-- after `restore`, `apply` can re-create the stability plan and apply the settings again
-
-## Notes
-
-- The Windows power-plan change is a mitigation, not proof of root cause.
-- In the recorded case, the most likely primary fix was still replacing the stale AMD graphics driver after a DDU cleanup.
-- BIOS changes such as `Operating Mode -> Turbo Mode` are documented, but not automated by this skill.
-
-## Invocation Example
-
-```text
-Use $mechrevo-amd-restart-fix to diagnose and mitigate random AMD-related restarts on a Mechrevo laptop, and apply the admin PowerShell power-plan fix when appropriate.
+```powershell
+powercfg /GETACTIVESCHEME
+$active = (powercfg /GETACTIVESCHEME | Select-String -Pattern '([A-Fa-f0-9-]{36})').Matches[0].Groups[1].Value.ToLower()
+powercfg /Q $active SUB_PROCESSOR PROCTHROTTLEMIN
+powercfg /Q $active SUB_PROCESSOR PROCTHROTTLEMAX
+powercfg /Q $active SUB_PCIEXPRESS ASPM
+Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl' -Name AutoReboot
 ```
+
+## 它会改什么
+
+应用脚本会：
+
+- 创建或重新创建 `Mechrevo AMD Stability` 电源计划
+- 把最低处理器状态改成 `5%`
+- 把最高处理器状态改成 `99%`
+- 把 PCIe 链路状态电源管理改成 `关闭`
+- 把 `System failure -> Automatically restart` 设为 `关闭`
+
+## 它不会做什么
+
+- 不会自动改 BIOS
+- 不会自动用 DDU 卸驱动
+- 不会替你判断是不是硬件已经损坏
+
+如果用了这个项目后还是会重启，下一步通常是：
+
+1. 检查 BIOS 相关设置
+2. 用 DDU 清理 AMD 驱动
+3. 安装新的 AMD 驱动
+
+## 已经测试过
+
+这个项目不是只写脚本，没有验证。
+
+已经实际测试过：
+
+- `apply -> verify -> repeated apply -> restore -> reapply`
+- 当前机器验证通过
+- 独立 subagent 已做过只读检查，确认别的 AI 也能读懂并验证当前状态
+
+## 文件一览
+
+- `SKILL.md`：给 Codex 的主说明
+- `scripts/apply_mechrevo_amd_mitigation.ps1`：自动修复脚本
+- `scripts/restore_mechrevo_power_defaults.ps1`：还原脚本
+- `references/mechrevo-15x-case.md`：案例记录
+
+## 搜索关键词
+
+- `机械革命 自动重启`
+- `机械革命 AMD 自动重启`
+- `机械革命 15X 暴风雪 自动重启`
+- `AMD 笔记本 随机重启 修复`
