@@ -1,6 +1,6 @@
 ---
 name: mechrevo-amd-restart-fix
-description: "Diagnose and mitigate random restarts, freezes, black screens, or light-load crashes on AMD-based Mechrevo laptops, especially Mechrevo 15X Blizzard. Use when the user reports AMD graphics related auto reboot issues, suspects BIOS or driver compatibility, wants a structured troubleshooting path, or wants an AI agent to apply the validated Windows power-plan mitigation automatically with elevated PowerShell."
+description: "Diagnose and mitigate random restarts, freezes, black screens, auto reboot issues, or light-load crashes on AMD-based Mechrevo / 机械革命 / 機械革命 laptops, especially Mechrevo 15X Blizzard / 15X 暴风雪 / 15X 暴風雪. Use when the user reports AMD graphics related restart problems, suspects BIOS or driver compatibility, wants a structured troubleshooting path, or wants an AI agent to apply the validated Windows power-plan mitigation automatically with elevated PowerShell."
 ---
 
 # 机械革命 AMD 重启修复
